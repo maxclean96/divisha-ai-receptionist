@@ -1,0 +1,10 @@
+{
+  "name": "divisha-ayurvedic-ai-receptionist",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "express": "^5.1.0",
+    "openai": "^6.16.0"
+  }
+}

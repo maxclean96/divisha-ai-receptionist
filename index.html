@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Divisha Ayurvedic AI Receptionist</title>
+<style>
+body{margin:0;font-family:system-ui,Arial;background:#f3f7f3;color:#17301f}.wrap{max-width:920px;margin:auto;padding:18px}
+header{background:#174b2b;color:#fff;padding:22px;border-radius:18px}h1{margin:0 0 5px}.muted{opacity:.8}
+nav{display:flex;gap:8px;margin:14px 0}button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;background:#174b2b;color:#fff}
+.card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px #0000000d;margin:12px 0}
+.chat{height:430px;overflow:auto;background:#f8fbf8;border-radius:14px;padding:14px}.m{max-width:80%;padding:11px 13px;border-radius:14px;margin:8px 0;line-height:1.45}.u{margin-left:auto;background:#174b2b;color:#fff}.a{background:#fff;border:1px solid #dfe8df}
+.row{display:flex;gap:8px;margin-top:10px}.row input{flex:1;padding:12px;border:1px solid #ccd8ce;border-radius:10px}
+table{width:100%;border-collapse:collapse}td,th{padding:10px;border-bottom:1px solid #e5ebe6;text-align:left;font-size:14px}
+.hidden{display:none}.stat{display:inline-block;padding:12px 18px;background:#eef5ef;border-radius:12px;margin:5px 5px 5px 0}
+</style>
+</head>
+<body><div class="wrap">
+<header><h1>Divisha Ayurvedic</h1><div>AI Receptionist • CP Colony, Morar, Gwalior</div><div class="muted">Mon–Sat • 9 AM–7 PM • Consultation ₹250</div></header>
+<nav><button onclick="show('chat')">Patient Chat</button><button onclick="show('dash')">Owner Dashboard</button></nav>
+
+<section id="chat" class="card">
+<h2>🤖 AI Receptionist</h2>
+<div id="messages" class="chat"></div>
+<div class="row"><input id="msg" placeholder="Ask about services, fee, timing, appointment..." onkeydown="if(event.key==='Enter')send()"><button onclick="send()">Send</button></div>
+<div style="margin-top:10px">
+<button onclick="ask('Services kya hain?')">Services</button>
+<button onclick="ask('Consultation fee kitni hai?')">Fee</button>
+<button onclick="ask('Appointment lena hai')">Appointment</button>
+</div>
+</section>
+
+<section id="dash" class="card hidden">
+<h2>📊 Owner Dashboard</h2><div id="stats"></div>
+<div style="overflow:auto"><table><thead><tr><th>ID</th><th>Patient</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th></tr></thead><tbody id="rows"></tbody></table></div>
+</section>
+</div>
+<script>
+const sessionId=crypto.randomUUID();
+const $=id=>document.getElementById(id);
+function show(x){$('chat').classList.toggle('hidden',x!=='chat');$('dash').classList.toggle('hidden',x!=='dash');if(x==='dash')loadDash()}
+function add(text,who){let d=document.createElement('div');d.className='m '+(who==='u'?'u':'a');d.textContent=text;$('messages').appendChild(d);$('messages').scrollTop=$('messages').scrollHeight}
+function ask(x){$('msg').value=x;send()}
+async function send(){let x=$('msg').value.trim();if(!x)return;add(x,'u');$('msg').value='';let r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:x,sessionId})});let j=await r.json();add(j.reply||j.error,'a')}
+async function loadDash(){let r=await fetch('/api/dashboard'),j=await r.json();$('stats').innerHTML=`<span class="stat">Appointments: <b>${j.stats.appointments}</b></span><span class="stat">Requests: <b>${j.stats.requested}</b></span><span class="stat">Chat messages: <b>${j.stats.chats}</b></span>`;$('rows').innerHTML=j.appointments.map(a=>`<tr><td>${a.id}</td><td>${a.name}<br>${a.phone}</td><td>${a.date}</td><td>${a.time}</td><td>${a.status}</td><td><button onclick="status('${a.id}','CONFIRMED')">Confirm</button> <button onclick="status('${a.id}','CANCELLED')">Cancel</button></td></tr>`).join('')}
+async function status(id,s){await fetch('/api/appointments/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:s})});loadDash()}
+add('Namaste 🙏 Divisha Ayurvedic mein aapka swagat hai. Main AI receptionist hoon. Main services, timing, ₹250 consultation fee, address aur appointment request mein help kar sakta hoon.','a');
+</script></body></html>
