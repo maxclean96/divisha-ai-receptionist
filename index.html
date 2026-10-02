@@ -40,7 +40,76 @@ const $=id=>document.getElementById(id);
 function show(x){$('chat').classList.toggle('hidden',x!=='chat');$('dash').classList.toggle('hidden',x!=='dash');if(x==='dash')loadDash()}
 function add(text,who){let d=document.createElement('div');d.className='m '+(who==='u'?'u':'a');d.textContent=text;$('messages').appendChild(d);$('messages').scrollTop=$('messages').scrollHeight}
 function ask(x){$('msg').value=x;send()}
-async function send(){let x=$('msg').value.trim();if(!x)return;add(x,'u');$('msg').value='';let r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:x,sessionId})});let j=await r.json();add(j.reply||j.error,'a')}
+async function send(){
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
+
+  if(!text) return;
+
+  add(text, "u");
+  input.value = "";
+
+  const q = text.toLowerCase();
+
+  let reply = "";
+
+  if(
+    q.includes("service") ||
+    q.includes("services") ||
+    q.includes("kya") ||
+    q.includes("problem") ||
+    q.includes("ilaj")
+  ){
+    reply = "Divisha Ayurvedic mein Skin & Hair Care, Digestive Issues, Respiratory & Allergies, Bone & Joint Pain, Women's Health aur Pediatric Homeopathy services available hain.";
+  }
+  else if(
+    q.includes("fee") ||
+    q.includes("fees") ||
+    q.includes("charge") ||
+    q.includes("kitna")
+  ){
+    reply = "Consultation fee ₹250 hai.";
+  }
+  else if(
+    q.includes("time") ||
+    q.includes("timing") ||
+    q.includes("open") ||
+    q.includes("kab")
+  ){
+    reply = "Clinic Monday se Saturday, subah 9 AM se shaam 7 PM tak open hai.";
+  }
+  else if(
+    q.includes("address") ||
+    q.includes("location") ||
+    q.includes("kahan") ||
+    q.includes("pata")
+  ){
+    reply = "Divisha Ayurvedic, CP Colony, Morar, Gwalior mein hai.";
+  }
+  else if(
+    q.includes("appointment") ||
+    q.includes("booking") ||
+    q.includes("book") ||
+    q.includes("milna")
+  ){
+    reply = "Bilkul 😊 Appointment request ke liye apna naam, mobile number aur preferred date/time bata dijiye. Clinic staff appointment confirm karega.";
+  }
+  else if(
+    q.includes("hello") ||
+    q.includes("hi") ||
+    q.includes("namaste") ||
+    q.includes("hii")
+  ){
+    reply = "Namaste 🙏 Divisha Ayurvedic mein aapka swagat hai. Main AI receptionist hoon. Main services, fee, timing, address aur appointment request mein help kar sakta hoon.";
+  }
+  else{
+    reply = "Namaste 🙏 Main Divisha Ayurvedic ka AI receptionist hoon. Aap services, consultation fee, timing, address ya appointment ke baare mein pooch sakte hain.";
+  }
+
+  setTimeout(function(){
+    add(reply, "a");
+  }, 400);
+  }
 async function loadDash(){let r=await fetch('/api/dashboard'),j=await r.json();$('stats').innerHTML=`<span class="stat">Appointments: <b>${j.stats.appointments}</b></span><span class="stat">Requests: <b>${j.stats.requested}</b></span><span class="stat">Chat messages: <b>${j.stats.chats}</b></span>`;$('rows').innerHTML=j.appointments.map(a=>`<tr><td>${a.id}</td><td>${a.name}<br>${a.phone}</td><td>${a.date}</td><td>${a.time}</td><td>${a.status}</td><td><button onclick="status('${a.id}','CONFIRMED')">Confirm</button> <button onclick="status('${a.id}','CANCELLED')">Cancel</button></td></tr>`).join('')}
 async function status(id,s){await fetch('/api/appointments/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:s})});loadDash()}
 add('Namaste 🙏 Divisha Ayurvedic mein aapka swagat hai. Main AI receptionist hoon. Main services, timing, ₹250 consultation fee, address aur appointment request mein help kar sakta hoon.','a');
