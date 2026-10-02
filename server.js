@@ -30,7 +30,7 @@ const db = () => JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
 const save = (x) => fs.writeFileSync(DATA_FILE, JSON.stringify(x, null, 2));
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(__dirname));
 
 function fallback(message) {
   const m = message.toLowerCase();
